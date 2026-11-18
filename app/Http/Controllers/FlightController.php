@@ -15,6 +15,13 @@ class FlightController extends Controller
         $service = app(FlightService::class);
         $bestFlights = $service->getBestFlights($request);
 
+        if ($request->hasAny(['departure_id', 'arrival_id', 'outbound_date', 'return_date'])) {
+            FlightHistoryController::registrarConsulta(
+                $request,
+                is_array($bestFlights) ? $bestFlights : []
+            );
+        }
+
         return view('flights.index', compact('bestFlights'));
     }
 }
