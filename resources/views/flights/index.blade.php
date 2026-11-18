@@ -46,13 +46,21 @@
    <div class="max-w-3xl mx-auto px-4 py-12 md:py-20">
 
       <!-- Cabeçalho -->
-      <header class="mb-10 md:mb-14">
-         <h1 class="font-mono text-3xl md:text-5xl font-semibold text-[#FBF8F2] tracking-tight">
-            Encontre seu próximo voo
-         </h1>
-         <p class="mt-3 text-[#A9B4C4] max-w-md">
-            Compare preços e horários entre aeroportos em segundos.
-         </p>
+      <header class="mb-10 md:mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+         <div>
+            <h1 class="font-mono text-3xl md:text-5xl font-semibold text-[#FBF8F2] tracking-tight">
+               Encontre seu próximo voo
+            </h1>
+            <p class="mt-3 text-[#A9B4C4] max-w-md">
+               Compare preços e horários entre aeroportos em segundos.
+            </p>
+         </div>
+
+         <a href="{{ route('flights.history') }}"
+            class="inline-flex items-center gap-2 self-start md:self-auto whitespace-nowrap shrink-0 px-4 py-2.5 rounded-lg border border-[#C9973E]/50 text-sm font-medium text-[#FBF8F2] hover:border-[#C9973E] hover:text-[#C9973E] transition-colors">
+            <span>Ver histórico de consultas</span>
+            <span aria-hidden="true">&rarr;</span>
+         </a>
       </header>
 
       <!-- CARD: Formulário em forma de bilhete -->
