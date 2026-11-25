@@ -9,7 +9,6 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-
     public function up(): void
     {
         Schema::create('flight_searches', function (Blueprint $table) {
@@ -19,14 +18,13 @@ return new class extends Migration
             $table->string('destination', 10);
             $table->date('departure_date');
             $table->date('return_date')->nullable();
-            $table->json('results');
             $table->timestamps();
             $table->index(['user_id', 'created_at']);
         });
     }
+
     public function down(): void
     {
         Schema::dropIfExists('flight_searches');
     }
-
 };

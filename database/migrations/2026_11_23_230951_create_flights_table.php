@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('flights', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->unsignedBigInteger('flight_number');
+            $table->foreignId('flight_search_id')->constrained()->cascadeOnDelete();
+            $table->unsignedInteger('duration_minutes');
+            $table->unsignedTinyInteger('stops');
+            $table->decimal('price', 10, 2);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('flights');
