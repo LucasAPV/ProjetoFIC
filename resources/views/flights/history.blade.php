@@ -38,6 +38,7 @@
 </head>
 
 <body class="bg-[#0E1B2C] font-sans min-h-screen">
+<x-navbar />
 
    <div class="max-w-3xl mx-auto px-4 py-12 md:py-20">
 
