@@ -43,6 +43,8 @@
 
 <body class="bg-[#0E1B2C] font-sans min-h-screen">
 
+<x-navbar />
+
    <div class="max-w-3xl mx-auto px-4 py-12 md:py-20">
 
       <!-- Cabeçalho -->
@@ -56,7 +58,7 @@
             </p>
          </div>
 
-         <a href="{{ route('flights.history') }}"
+         <a href="{{ route('flights.history') }} "
             class="inline-flex items-center gap-2 self-start md:self-auto whitespace-nowrap shrink-0 px-4 py-2.5 rounded-lg border border-[#C9973E]/50 text-sm font-medium text-[#FBF8F2] hover:border-[#C9973E] hover:text-[#C9973E] transition-colors">
             <span>Ver histórico de consultas</span>
             <span aria-hidden="true">&rarr;</span>

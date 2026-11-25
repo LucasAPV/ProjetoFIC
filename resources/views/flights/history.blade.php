@@ -170,11 +170,11 @@
          <div class="flex flex-col gap-4">
             @forelse($histories as $history)
                @php
-                  $origin = $pickField($history, ['departure_id', 'origem']);
-                  $destination = $pickField($history, ['arrival_id', 'destino']);
-                  $outboundRaw = $pickField($history, ['outbound_date', 'data_ida']);
+                  $origin = $pickField($history, ['origin', 'departure_id', 'origem']);
+                  $destination = $pickField($history, ['destination', 'arrival_id', 'destino']);
+                  $outboundRaw = $pickField($history, ['departure_date', 'outbound_date', 'data_ida']);
                   $returnRaw = $pickField($history, ['return_date', 'data_volta']);
-                  $price = $pickField($history, ['price', 'preco']);
+                  $resultsCount = $history->flights->count();
                   $flightNumber = $pickField($history, ['flight_number', 'numero_voo']);
                   $flightName = $pickField($history, ['name', 'nome']);
                   $resultsCount = $pickField($history, ['results_count', 'quantidade_resultados']);
@@ -194,71 +194,122 @@
                   ], static fn ($value) => $value !== null && $value !== '');
                @endphp
 
-               <div
-                  class="relative flex flex-col md:flex-row bg-[#FBF8F2] rounded-2xl overflow-hidden shadow-lg shadow-black/30">
 
-                  <div class="flex-1 p-6 md:p-7">
-                     <div class="flex items-center gap-3 font-mono text-lg font-semibold text-[#263041]">
-                        <span>{{ $originDisplay }}</span>
-                        <span class="text-[#C9973E]">&rarr;</span>
-                        <span>{{ $destinationDisplay }}</span>
+                 <div class="relative flex flex-col bg-[#FBF8F2] rounded-2xl overflow-hidden shadow-lg shadow-black/30">
+
+                     <!-- Informações da pesquisa -->
+                     <div class="p-6 md:p-7">
+                         <div class="flex items-center gap-3 font-mono text-lg font-semibold text-[#263041]">
+                             <span>{{ $originDisplay }}</span>
+                             <span class="text-[#C9973E]">&rarr;</span>
+                             <span>{{ $destinationDisplay }}</span>
+                         </div>
+
+                         @if($flightName || $flightNumber)
+                             <p class="text-sm text-[#4B5568] mt-1">
+                                 {{ $flightName ?? 'Voo' }}
+                                 @if($flightNumber)
+                                     <span class="font-mono text-[#6B7686]">#{{ $flightNumber }}</span>
+                                 @endif
+                             </p>
+                         @endif
+
+                         @if($outboundFormatted || $returnFormatted)
+                             <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm text-[#6B7686] mt-2">
+                                 @if($outboundFormatted)
+                                     <span>Ida: <strong class="font-mono font-medium text-[#263041]">{{ $outboundFormatted }}</strong></span>
+                                 @endif
+                                 @if($returnFormatted)
+                                     <span>Volta: <strong class="font-mono font-medium text-[#263041]">{{ $returnFormatted }}</strong></span>
+                                 @endif
+                             </div>
+                         @endif
+
+                         <div class="mt-3 flex flex-wrap items-center gap-2">
+                             @if($searchedAtFormatted)
+                                 <span class="inline-block text-xs font-medium text-[#4B5568] bg-[#EFEAE0] rounded-full px-3 py-1">
+                    Consultado em {{ $searchedAtFormatted }}
+                </span>
+                             @endif
+
+                             @if($resultsCount !== null)
+                                 <span class="inline-block text-xs font-medium text-[#4B5568] bg-[#EFEAE0] rounded-full px-3 py-1">
+                    {{ $resultsCount }} {{ (int) $resultsCount === 1 ? 'resultado' : 'resultados' }}
+                </span>
+                             @endif
+                         </div>
                      </div>
 
-                     @if($flightName || $flightNumber)
-                        <p class="text-sm text-[#4B5568] mt-1">
-                           {{ $flightName ?? 'Voo' }}
-                           @if($flightNumber)
-                              <span class="font-mono text-[#6B7686]">#{{ $flightNumber }}</span>
-                           @endif
-                        </p>
-                     @endif
-
-                     @if($outboundFormatted || $returnFormatted)
-                        <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm text-[#6B7686] mt-2">
-                           @if($outboundFormatted)
-                              <span>Ida: <strong class="font-mono font-medium text-[#263041]">{{ $outboundFormatted }}</strong></span>
-                           @endif
-                           @if($returnFormatted)
-                              <span>Volta: <strong class="font-mono font-medium text-[#263041]">{{ $returnFormatted }}</strong></span>
-                           @endif
-                        </div>
-                     @endif
-
-                     <div class="mt-3 flex flex-wrap items-center gap-2">
-                        @if($searchedAtFormatted)
-                           <span class="inline-block text-xs font-medium text-[#4B5568] bg-[#EFEAE0] rounded-full px-3 py-1">
-                              Consultado em {{ $searchedAtFormatted }}
-                           </span>
-                        @endif
-
-                        @if($resultsCount !== null)
-                           <span class="inline-block text-xs font-medium text-[#4B5568] bg-[#EFEAE0] rounded-full px-3 py-1">
-                              {{ $resultsCount }} {{ (int) $resultsCount === 1 ? 'resultado' : 'resultados' }}
-                           </span>
-                        @endif
+                     <!-- Separador horizontal -->
+                     <div class="relative border-t-2 border-dashed border-[#D8D2C4]">
+                         <span class="punch -left-3 -top-3"></span>
+                         <span class="punch -right-3 -top-3"></span>
                      </div>
-                  </div>
 
-                  <!-- Perfuração vertical -->
-                  <div class="hidden md:block relative w-px border-l-2 border-dashed border-[#D8D2C4]">
-                     <span class="punch -top-3 -left-3"></span>
-                     <span class="punch -bottom-3 -left-3"></span>
-                  </div>
+                     <!-- Listagem de voos -->
+                     <div class="p-6 md:p-7 bg-[#F3EEE3]">
 
-                  <div class="flex flex-col items-center justify-center gap-3 md:w-48 bg-[#F3EEE3] p-6 text-center">
-                     @if($price !== null && is_numeric($price))
-                        <p class="font-mono text-xl font-semibold text-[#2F6F4E]">
-                           R$ {{ number_format((float) $price, 2, ',', '.') }}
-                        </p>
-                     @endif
+                         <h3 class="font-mono text-sm font-semibold text-[#263041] mb-4">
+                             Voos encontrados
+                         </h3>
 
-                     <a href="{{ route('flights.index', $recheckParams) }}"
-                        class="inline-flex items-center justify-center w-full bg-[#0E1B2C] text-[#FBF8F2] text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-[#1B2C42] focus:outline-none focus:ring-2 focus:ring-[#C9973E] transition-colors">
-                        Refazer busca
-                     </a>
-                  </div>
-               </div>
-            @empty
+                         <div class="flex flex-col gap-3">
+                             @forelse($history->flights as $flight)
+                                 @php
+                                     $duration = $flight->duration_minutes;
+                                     $hours = intdiv((int) $duration, 60);
+                                     $minutes = (int) $duration % 60;
+                                     $stops = $flight->stops;
+                                 @endphp
+
+                                 <div class="rounded-xl border border-[#D8D2C4] bg-white p-4">
+                                     <div class="flex flex-wrap items-center justify-between gap-3">
+
+                                         <div>
+                                             <p class="text-xs text-[#8B93A1] font-medium uppercase tracking-wider">
+                                                 Duração total
+                                             </p>
+                                             <p class="font-mono text-lg font-semibold text-[#263041]">
+                                                 {{ $duration !== null ? "{$hours}h {$minutes}min" : '--' }}
+                                             </p>
+                                         </div>
+
+                                         <div>
+                                             <p class="text-xs text-[#8B93A1] font-medium uppercase tracking-wider">
+                                                 Escalas
+                                             </p>
+                                             <p class="text-sm font-medium text-[#263041]">
+                                                 @if($stops === null)
+                                                     Não informado
+                                                 @elseif($stops == 0)
+                                                     Voo direto
+                                                 @else
+                                                     {{ $stops }} {{ $stops == 1 ? 'escala' : 'escalas' }}
+                                                 @endif
+                                             </p>
+                                         </div>
+
+                                         <div class="text-right">
+                                             <p class="text-xs text-[#8B93A1] font-medium uppercase tracking-wider">
+                                                 Preço
+                                             </p>
+                                             <p class="font-mono text-lg font-semibold text-[#2F6F4E]">
+                                                 R$ {{ number_format((float) $flight->price, 2, ',', '.') }}
+                                             </p>
+                                         </div>
+
+                                     </div>
+                                 </div>
+                             @empty
+                                 <p class="text-sm text-[#8B93A1]">
+                                     Nenhum voo registrado nesta consulta.
+                                 </p>
+                             @endforelse
+                         </div>
+                     </div>
+                 </div>
+
+             @empty
                <div class="bg-[#16273D] border border-[#233247] rounded-2xl p-10 text-center">
                   <p class="text-[#C7CEDA]">Nenhuma consulta encontrada no histórico.</p>
                   <p class="text-sm text-[#8B93A1] mt-1">

@@ -10,18 +10,19 @@ use Illuminate\Http\Request;
 
 class FlightController extends Controller
 {
+    protected $flightService;
+    protected $flightHistoryService;
+    public function __construct(FlightService $flightService, FlightHistoryController $flightHistoryController){
+        $this->flightService = $flightService;
+        $this->flightHistoryService = $flightHistoryController;
+    }
     //
     public function index(Request $request) {
-        $service = app(FlightService::class);
-        $bestFlights = $service->getBestFlights($request);
-
+        $bestFlights = $this->flightService->getBestFlights($request);
+        // começar a implementar aqui.
         if ($request->hasAny(['departure_id', 'arrival_id', 'outbound_date', 'return_date'])) {
-            FlightHistoryController::registrarConsulta(
-                $request,
-                is_array($bestFlights) ? $bestFlights : []
-            );
+                $this->flightHistoryService->registrarConsulta($request, $bestFlights);
         }
-
         return view('flights.index', compact('bestFlights'));
     }
 }
