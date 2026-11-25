@@ -255,32 +255,64 @@
 
                          <div class="flex flex-col gap-3">
                              @forelse($history->flights as $flight)
+
                                  @php
                                      $duration = $flight->duration_minutes;
-                                     $hours = intdiv((int) $duration, 60);
-                                     $minutes = (int) $duration % 60;
+                                     $hours = $duration !== null ? intdiv((int) $duration, 60) : 0;
+                                     $minutes = $duration !== null ? (int) $duration % 60 : 0;
+
+                                     $departureAt = $flight->departure_at
+                                         ? \Carbon\Carbon::parse($flight->departure_at)
+                                         : null;
+
+                                     $arrivalAt = $flight->arrival_at
+                                         ? \Carbon\Carbon::parse($flight->arrival_at)
+                                         : null;
+
                                      $stops = $flight->stops;
                                  @endphp
 
-                                 <div class="rounded-xl border border-[#D8D2C4] bg-white p-4">
-                                     <div class="flex flex-wrap items-center justify-between gap-3">
+                                 <div class="rounded-xl border border-[#D8D2C4] bg-white p-5">
 
+                                     <!-- Aeroportos e horários -->
+                                     <div class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-center">
+
+                                         <!-- Partida -->
                                          <div>
                                              <p class="text-xs text-[#8B93A1] font-medium uppercase tracking-wider">
-                                                 Duração total
+                                                 Partida
                                              </p>
-                                             <p class="font-mono text-lg font-semibold text-[#263041]">
-                                                 {{ $duration !== null ? "{$hours}h {$minutes}min" : '--' }}
+
+                                             <p class="font-mono text-lg font-semibold text-[#263041] mt-1">
+                                                 {{ $departureAt?->format('H:i') ?? '--:--' }}
                                              </p>
+
+                                             <p class="text-sm text-[#4B5568] mt-1 break-words">
+                                                 {{ $flight->departure_airport_name ?? 'Aeroporto não informado' }}
+                                             </p>
+
+                                             @if($departureAt)
+                                                 <p class="text-xs text-[#8B93A1] mt-1">
+                                                     {{ $departureAt->format('d/m/Y') }}
+                                                 </p>
+                                             @endif
                                          </div>
 
-                                         <div>
-                                             <p class="text-xs text-[#8B93A1] font-medium uppercase tracking-wider">
-                                                 Escalas
+                                         <!-- Duração -->
+                                         <div class="flex flex-col items-center justify-center">
+                                             <p class="text-xs text-[#8B93A1] font-medium">
+                                                 {{ $duration !== null ? "{$hours}h {$minutes}min" : '--' }}
                                              </p>
-                                             <p class="text-sm font-medium text-[#263041]">
+
+                                             <div class="flex items-center gap-2 w-full mt-2">
+                                                 <div class="h-px bg-[#D8D2C4] flex-1"></div>
+                                                 <span class="text-[#C9973E] text-lg">✈</span>
+                                                 <div class="h-px bg-[#D8D2C4] flex-1"></div>
+                                             </div>
+
+                                             <p class="text-xs text-[#8B93A1] mt-2">
                                                  @if($stops === null)
-                                                     Não informado
+                                                     Escalas não informadas
                                                  @elseif($stops == 0)
                                                      Voo direto
                                                  @else
@@ -289,24 +321,64 @@
                                              </p>
                                          </div>
 
-                                         <div class="text-right">
+                                         <!-- Chegada -->
+                                         <div class="md:text-right">
                                              <p class="text-xs text-[#8B93A1] font-medium uppercase tracking-wider">
-                                                 Preço
+                                                 Chegada
                                              </p>
-                                             <p class="font-mono text-lg font-semibold text-[#2F6F4E]">
-                                                 R$ {{ number_format((float) $flight->price, 2, ',', '.') }}
+
+                                             <p class="font-mono text-lg font-semibold text-[#263041] mt-1">
+                                                 {{ $arrivalAt?->format('H:i') ?? '--:--' }}
                                              </p>
+
+                                             <p class="text-sm text-[#4B5568] mt-1 break-words">
+                                                 {{ $flight->arrival_airport_name ?? 'Aeroporto não informado' }}
+                                             </p>
+
+                                             @if($arrivalAt)
+                                                 <p class="text-xs text-[#8B93A1] mt-1">
+                                                     {{ $arrivalAt->format('d/m/Y') }}
+                                                 </p>
+                                             @endif
                                          </div>
 
                                      </div>
+
+                                     <!-- Separador -->
+                                     <div class="border-t border-dashed border-[#D8D2C4] my-4"></div>
+
+                                     <!-- Preço e informações adicionais -->
+                                     <div class="flex flex-wrap items-center justify-between gap-3">
+
+                                         <div>
+                                             <p class="text-xs text-[#8B93A1] font-medium uppercase tracking-wider">
+                                                 Preço por pessoa
+                                             </p>
+
+                                             <p class="font-mono text-xl font-bold text-[#2F6F4E]">
+                                                 {{ $flight->price !== null
+                                                     ? 'R$ ' . number_format((float) $flight->price, 2, ',', '.')
+                                                     : 'Não informado' }}
+                                             </p>
+                                         </div>
+
+                                         <span class="text-xs text-[#6B7686] bg-[#EFEAE0] rounded-full px-3 py-1">
+                        {{ $stops === 0 ? 'Sem conexões' : ($stops === 1 ? '1 conexão' : ($stops > 1 ? $stops . ' conexões' : 'Escalas desconhecidas')) }}
+                    </span>
+
+                                     </div>
+
                                  </div>
+
                              @empty
                                  <p class="text-sm text-[#8B93A1]">
                                      Nenhum voo registrado nesta consulta.
                                  </p>
                              @endforelse
                          </div>
+
                      </div>
+
                  </div>
 
              @empty
@@ -322,6 +394,9 @@
                </div>
             @endforelse
          </div>
+          <div class="mt-4">
+              {{ $histories->links() }}
+          </div>
       </section>
    </div>
 
